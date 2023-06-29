@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../../utils/bcrypt";
 import { generateToken } from "../../utils/jwt";
 import payloadBody from "../../models/payloadBody";
+import sendEmail from "../../utils/mailgun";
 
 const prisma = new PrismaClient();
 
@@ -45,6 +46,25 @@ export const register = async (req: Request, res: Response) => {
         }
       }
     });
+
+    const emailTemplate = `
+    <div>
+      <h1>Bienvenido/a a nuestro sitio</h1>
+      <p>Estimado/a ${name},</p>
+      <p>Gracias por registrarte en nuestro sitio. ¡Estamos encantados de tenerte como parte de nuestra comunidad!</p>
+      <p>A partir de ahora, podrás acceder a todos los servicios y características de nuestra plataforma.</p>
+      <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nuestro equipo de soporte.</p>
+      <p>¡Que tengas una experiencia maravillosa en nuestro sitio!</p>
+      <br>
+      <p>Atentamente,</p>
+      <p>Javier Aponte</p>
+    </div>
+    `;
+
+    await sendEmail(
+      email,
+      "Bienvendo/a a nuestro sitio",
+      emailTemplate);
 
     const payload: payloadBody = {
       id: newUser.id,

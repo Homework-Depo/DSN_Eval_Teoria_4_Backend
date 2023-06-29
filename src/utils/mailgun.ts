@@ -14,7 +14,7 @@ const sendEmail = async (to: string, subject: string, text: string) => {
     from: "Laboratorio 14 <mailgun@sandboxc4c08a56b91341c59b30741127ada808.mailgun.org>",
     to: [to],
     subject: subject,
-    text: text
+    html: text
   });
 
   return response.status === 200 ? true : false;
