@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import { routes } from "./router";
 
 const app = express();
 
@@ -13,5 +14,6 @@ app.use(cors({
 }));
 app.use(morgan("dev"));
 
-export default app;
+routes(app);
 
+export default app;
