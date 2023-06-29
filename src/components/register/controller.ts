@@ -7,9 +7,9 @@ import payloadBody from "../../models/payloadBody";
 const prisma = new PrismaClient();
 
 export const register = async (req: Request, res: Response) => {
-  const { name, username, password, secretKey } = req.body;
+  const { name, email, password, secretKey } = req.body;
 
-  if (!username || !password || !name) {
+  if (!email || !password || !name) {
     return res.status(400).json({
       success: false,
       message: "Campos faltantes."
@@ -19,7 +19,7 @@ export const register = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        username
+        email
       }
     });
 
@@ -35,7 +35,7 @@ export const register = async (req: Request, res: Response) => {
     const newUser = await prisma.user.create({
       data: {
         name,
-        username,
+        email,
         secretKey: secretKey || null,
         password: hashedPassword,
         Password: {
@@ -52,7 +52,7 @@ export const register = async (req: Request, res: Response) => {
       tokenType: "access"
     }
 
-    const token: string = generateToken(payload, "7d");
+    const token: string = generateToken(JSON.stringify(payload), "7d");
 
     res.cookie("jwt", token, {
       httpOnly: true,

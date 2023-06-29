@@ -4,13 +4,14 @@ import { comparePassword } from "../../utils/bcrypt";
 import { generateToken } from "../../utils/jwt";
 import payloadBody from "../../models/payloadBody";
 import { generate } from "../../utils/otp";
+import { sign } from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
 export const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
+  if (!email || !password) {
     return res.status(400).json({
       success: false,
       message: "Campos faltantes."
@@ -20,42 +21,11 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user: User | null = await prisma.user.findUnique({
       where: {
-        username: username
+        email: email
       }
     });
 
     if (!user || typeof user !== "object") {
-      return res.status(401).json({
-        success: false,
-        message: "Credenciales incorrectas."
-      });
-    }
-
-    const isValidPassword: boolean = await comparePassword(password, user.password);
-
-    if (!isValidPassword) {
-      if (user!.loginAttempts >= 2) {
-        await prisma.user.update({
-          where: {
-            id: user.id
-          },
-          data: {
-            loginAttempts: 0,
-            locked: true
-          }
-        });
-      }
-
-      await prisma.user.update({
-        where: {
-          id: user.id
-        },
-        data: {
-          loginAttempts: user.loginAttempts + 1
-        }
-      });
-
-
       return res.status(401).json({
         success: false,
         message: "Credenciales incorrectas."
@@ -69,38 +39,65 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const payload: payloadBody = {
-      id: user.id,
-      name: user.name
-    };
+    const isValidPassword: boolean = await comparePassword(password, user.password);
 
-    if (!user.secretKey) {
-      payload.tokenType = "access";
+    if (!isValidPassword) {
+      if (user.loginAttempts >= 2) {
+        await prisma.user.update({
+          where: {
+            id: user.id
+          },
+          data: {
+            loginAttempts: 0,
+            locked: true
+          }
+        });
+      } else {
+        await prisma.user.update({
+          where: {
+            id: user.id
+          },
+          data: {
+            loginAttempts: user.loginAttempts + 1
+          }
+        });
 
-      const token = generateToken(payload, "7d");
-
-      res.cookie("jwt", token, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Usuario logueado correctamente."
+      }
+      
+      return res.status(401).json({
+        success: false,
+        message: "Credenciales incorrectas."
       });
     }
 
-    payload.tokenType = "otp";
-    const token = generateToken(payload, "5m");
+    const payload: payloadBody = {
+      id: user.id,
+      name: user.name,
+      tokenType: user.secretKey ? "otp" : "access"
+    };
+
+    const token: string = generateToken(payload, user.secretKey ? "5m" : "7d");
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      maxAge: 5 * 60 * 1000
+      maxAge: user.secretKey ? 5 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
     });
+
+    if (payload.tokenType === "access") {
+      await prisma.user.update({
+        where: {
+          id: user.id
+        },
+        data: {
+          loginAttempts: 0
+        }
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: "Usuario logueado correctamente.",
+      requireOtp: user.secretKey ? true : false
     });
   } catch (error) {
     return res.status(500).json({
@@ -143,9 +140,9 @@ export const validateOtp = async (req: Request, res: Response) => {
       tokenType: "access"
     };
 
-    const token = generateToken(payload, "7d");
+    const token = generateToken(JSON.stringify(payload), "7d");
 
-    res.cookie("jwt", token, {
+    res.cookie("jwt", token.toString(), {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });

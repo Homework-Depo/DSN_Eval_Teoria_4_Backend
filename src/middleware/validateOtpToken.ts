@@ -4,6 +4,7 @@ import payloadBody from "../models/payloadBody";
 
 const validateOtpToken = (req: Request, res: Response, next: NextFunction) => {
   const cookie = req.cookies.jwt;
+  console.log(cookie);
 
   if (!cookie) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -19,7 +20,9 @@ const validateOtpToken = (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    req.body.user.id = payload.id;
+    req.body.user = {
+      id: payload.id
+    };
 
     return next();
   } catch (error) {
