@@ -52,7 +52,7 @@ export const register = async (req: Request, res: Response) => {
       tokenType: "access"
     }
 
-    const token: string = generateToken(JSON.stringify(payload), "7d");
+    const token: string = generateToken(payload, "7d");
 
     res.cookie("jwt", token, {
       httpOnly: true,
@@ -64,6 +64,7 @@ export const register = async (req: Request, res: Response) => {
       message: "Usuario creado."
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "Error interno del servidor."

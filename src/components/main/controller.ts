@@ -18,15 +18,15 @@ export const getUser = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Usuario encontrado.",
       data: user
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Error interno del servidor."
+      message: "Error interno del servidor.",
     });
   }
 }

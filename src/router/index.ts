@@ -5,7 +5,8 @@ import {
   logoutRouter,
   captchaRouter,
   sessionRouter,
-  mainRouter
+  mainRouter,
+  passwordResetRouter
 } from "../components";
 
 const routesList: [string, Router][] = [
@@ -14,7 +15,8 @@ const routesList: [string, Router][] = [
   ["/api/v1/logout", logoutRouter],
   ["/api/v1/captcha", captchaRouter],
   ["/api/v1/session", sessionRouter],
-  ["/api/v1/", mainRouter]
+  ["/api/v1/", mainRouter],
+  ["/api/v1/password-reset", passwordResetRouter]
 ];
 
 export const routes = (app: Express) => {
