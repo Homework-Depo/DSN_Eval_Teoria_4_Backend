@@ -13,5 +13,5 @@ export const verifyOtp = (otp: string, secret: string) => {
 };
 
 export const generateKeyUri = (username: string, secret: string) => {
-  return authenticator.keyuri(username, "Laboratorio 14", secret);
+  return authenticator.keyuri(username, "Exámen Teoria 4", secret);
 }

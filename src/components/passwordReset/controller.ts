@@ -44,7 +44,7 @@ export const passwordResetRequest = async (req: Request, res: Response) => {
     const data = await sendEmail(
       email,
       "Recuperación de contraseña",
-      `Su código de recuperación es: ${randomCode}`
+      `<h3>Su código de recuperación es: ${randomCode}</h3>`
     );
 
     return res.status(200).json({

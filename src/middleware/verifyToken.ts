@@ -21,8 +21,6 @@ const validateToken = (req: Request, res: Response, next: NextFunction) => {
       id: payload.id
     };
 
-    console.log(req.body.user);
-
     return next();
   } catch (error) {
     console.log(error);
