@@ -75,6 +75,8 @@ export const register = async (req: Request, res: Response) => {
     const token: string = generateToken(payload, "7d");
 
     res.cookie("jwt", token, {
+      domain: "http://3.94.173.130:5173/",
+      path: "/",
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
