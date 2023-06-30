@@ -80,8 +80,6 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      domain: "http://3.94.173.130:5173/",
-      path: "/",
       maxAge: user.secretKey ? 5 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
     });
 
@@ -145,8 +143,6 @@ export const validateOtp = async (req: Request, res: Response) => {
     const token = generateToken(JSON.stringify(payload), "7d");
 
     res.cookie("jwt", token.toString(), {
-      domain: "http://3.94.173.130:5173/",
-      path: "/",
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
